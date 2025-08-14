@@ -18,25 +18,18 @@ export type SchemaValidator<T = any> = T extends any[]
       }
     : {
           name: string;
-          type: Exclude<SchemaTypes, SchemaTypes.array>;
+          type: SchemaTypes;
           items?: never;
       };
 
-export type SchemaValidators<T = any> = SchemaValidator<T>[];
+export type SchemaValidators<T extends any[] = any[]> = SchemaValidator<
+    T[number]
+>[];
 
-export type InferSchemaType<V extends SchemaValidator<any>> =
-    V["type"] extends SchemaTypes.array
-        ? V["items"] extends [infer Item extends SchemaValidator<any>]
-            ? InferSchemaType<Item>[]
-            : never
-        : V["type"] extends keyof SchemaTypeMap
-          ? SchemaTypeMap[V["type"]]
-          : never;
-
-export function SchemaValidate<T extends SchemaValidators<any>>(
+export function SchemaValidate(
     data: Buffer,
     schemaValidator: SchemaValidators,
-): { [K in T[number] as K["name"]]: InferSchemaType<K> } {
+) {
     let offset = 0;
 
     function readField(validator: SchemaValidator): any {
@@ -85,7 +78,7 @@ export function SchemaValidate<T extends SchemaValidators<any>>(
                 offset += 8;
                 const result: any[] = [];
                 for (let i = 0; i < length; i++) {
-                    result.push(readField(validator.items[0]));
+                    result.push(readField(validator.items![0]));
                 }
                 return result;
             }

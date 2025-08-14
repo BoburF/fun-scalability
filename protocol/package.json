@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "build": "tsc",
+        "test": "node build/test/route.js"
     },
     "keywords": [],
     "author": "Bobur Abdullayev<changeitgo3@gmail.com>",
