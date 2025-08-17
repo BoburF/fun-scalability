@@ -27,6 +27,12 @@ export class SchemBuilder {
             parse: (data, offset) => {
                 return [data.getUint8(offset), offset + 1];
             },
+            build: (val, data, offset) => {
+                data.setUint8(offset, val);
+
+                return offset + 1;
+            },
+            size: (_) => 1,
         } as BaseSchemaType<number>;
     }
 
@@ -36,6 +42,12 @@ export class SchemBuilder {
             parse: (data, offset) => {
                 return [data.getUint16(offset, false), offset + 2];
             },
+            build: (val, data, offset) => {
+                data.setUint16(offset, val, false);
+
+                return offset + 2;
+            },
+            size: (_) => 2,
         } as BaseSchemaType<number>;
     }
 
@@ -45,6 +57,12 @@ export class SchemBuilder {
             parse: (data, offset) => {
                 return [data.getUint32(offset, false), offset + 4];
             },
+            build: (val, data, offset) => {
+                data.setUint32(offset, val, false);
+
+                return offset + 4;
+            },
+            size: (_) => 4,
         } as BaseSchemaType<number>;
     }
 
@@ -60,6 +78,12 @@ export class SchemBuilder {
 
                 return [Number(num), offset + 8];
             },
+            build: (val, data, offset) => {
+                data.setBigUint64(offset, BigInt(val), false);
+
+                return offset + 8;
+            },
+            size: (_) => 8,
         } as BaseSchemaType<number>;
     }
 
@@ -84,6 +108,20 @@ export class SchemBuilder {
 
                 return [str, offset + strClearLength];
             },
+            build: (val, view, offset) => {
+                const encoder = new TextEncoder();
+                const encoded = encoder.encode(val);
+
+                view.setBigUint64(offset, BigInt(encoded.length), false);
+                offset += 8;
+
+                new Uint8Array(view.buffer, offset, encoded.length).set(
+                    encoded,
+                );
+
+                return offset + encoded.length;
+            },
+            size: (value) => 8 + new TextEncoder().encode(value).length,
         } as BaseSchemaType<string>;
     }
 
@@ -92,6 +130,11 @@ export class SchemBuilder {
             type: SchemaTypes.boolean,
             parse: (data, offset) => {
                 return [data.getUint8(offset) > 0, offset + 1];
+            },
+            build: (val, data, offset) => {
+                data.setUint8(offset, val ? 1 : 0);
+
+                return offset + 1;
             },
         } as BaseSchemaType<boolean>;
     }
@@ -122,6 +165,28 @@ export class SchemBuilder {
 
                 return [result, offset];
             },
+            build: (values: any[], view, offset) => {
+                view.setUint32(offset, values.length, false);
+                offset += 4;
+
+                for (const obj of values) {
+                    for (const [key, parser] of Object.entries(
+                        schemaDefinition,
+                    )) {
+                        offset = parser.build(obj[key], view, offset);
+                    }
+                }
+                return offset;
+            },
+            size: (values) => {
+                let total = 4;
+                for (const v of values) {
+                    for (const key of Object.keys(v)) {
+                        total += schemaDefinition[key]!.size(v);
+                    }
+                }
+                return total;
+            },
         } as BaseSchemaType<Array<InferSchema<T>>>;
     }
 }
@@ -141,4 +206,33 @@ export function parseData<T extends Record<string, BaseSchemaType<any>>>(
     }
 
     return result;
+}
+
+export function buildData<T extends Record<string, BaseSchemaType<any>>>(
+    obj: InferSchema<T>,
+    schema: T,
+) {
+    const size = preCalcSize(obj, schema);
+    const buffer = new ArrayBuffer(size);
+    const view = new DataView(buffer);
+    let offset = 0;
+
+    for (const [key, fieldSchema] of Object.entries(schema)) {
+        offset = fieldSchema.build(obj[key], view, offset);
+    }
+
+    return buffer;
+}
+
+export function preCalcSize<T extends Record<string, BaseSchemaType<any>>>(
+    obj: InferSchema<T>,
+    schema: T,
+): number {
+    let totalSize = 0;
+
+    for (const [key, fieldSchema] of Object.entries(schema)) {
+        totalSize += fieldSchema.size(obj[key]);
+    }
+
+    return totalSize;
 }
