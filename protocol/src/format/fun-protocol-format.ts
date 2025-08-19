@@ -14,8 +14,10 @@ export type InferSchema<T extends Record<string, BaseSchemaType<any>>> = {
     [K in keyof T]: InferType<T[K]>;
 };
 
+export type SchemaDefinition = Record<string, BaseSchemaType<any>>
+
 export class SchemaBuilder {
-    static schemaDefinition<T extends Record<string, BaseSchemaType<any>>>(
+    static schemaDefinition<T extends SchemaDefinition>(
         schema: T,
     ): T {
         return schema;
@@ -139,7 +141,7 @@ export class SchemaBuilder {
         } as BaseSchemaType<boolean>;
     }
 
-    static array<T extends Record<string, BaseSchemaType<any>>>(
+    static array<T extends SchemaDefinition>(
         schemaDefinition: T,
     ) {
         return {
@@ -191,7 +193,7 @@ export class SchemaBuilder {
     }
 }
 
-export function parseData<T extends Record<string, BaseSchemaType<any>>>(
+export function parseData<T extends SchemaDefinition>(
     data: ArrayBuffer,
     schema: T,
 ): InferSchema<T> {
@@ -208,7 +210,7 @@ export function parseData<T extends Record<string, BaseSchemaType<any>>>(
     return result;
 }
 
-export function buildData<T extends Record<string, BaseSchemaType<any>>>(
+export function buildData<T extends SchemaDefinition>(
     obj: InferSchema<T>,
     schema: T,
 ) {
@@ -224,7 +226,7 @@ export function buildData<T extends Record<string, BaseSchemaType<any>>>(
     return buffer;
 }
 
-export function preCalcSize<T extends Record<string, BaseSchemaType<any>>>(
+export function preCalcSize<T extends SchemaDefinition>(
     obj: InferSchema<T>,
     schema: T,
 ): number {
