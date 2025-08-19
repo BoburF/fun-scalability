@@ -14,7 +14,7 @@ export type InferSchema<T extends Record<string, BaseSchemaType<any>>> = {
     [K in keyof T]: InferType<T[K]>;
 };
 
-export class SchemBuilder {
+export class SchemaBuilder {
     static schemaDefinition<T extends Record<string, BaseSchemaType<any>>>(
         schema: T,
     ): T {

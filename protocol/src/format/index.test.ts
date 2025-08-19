@@ -2,15 +2,15 @@ import {
     buildData,
     InferSchema,
     parseData,
-    SchemBuilder,
+    SchemaBuilder,
 } from "./fun-protocol-format";
 
-const getInfoSchema = SchemBuilder.schemaDefinition({
-    apiKey: SchemBuilder.number16(),
-    src: SchemBuilder.string(),
-    arr: SchemBuilder.array(
-        SchemBuilder.schemaDefinition({
-            num: SchemBuilder.number8(),
+const getInfoSchema = SchemaBuilder.schemaDefinition({
+    apiKey: SchemaBuilder.number16(),
+    src: SchemaBuilder.string(),
+    arr: SchemaBuilder.array(
+        SchemaBuilder.schemaDefinition({
+            num: SchemaBuilder.number8(),
         }),
     ),
 });
