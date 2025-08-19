@@ -1,10 +1,10 @@
+import { WebSocketServer } from "ws";
 import type { Logger } from "../../domain/logger";
 import type { WebsocketServerConfig } from "./config";
-import { WebSocket, type WebSocketEventMap } from "undici-types";
 import type { RequestController } from "../request-controller";
 
-export class WebsocketServer {
-    private server!: WebSocket;
+export class WebsocketServerImpl {
+    private server!: WebSocketServer;
 
     constructor(
         private readonly logger: Logger,
@@ -12,44 +12,35 @@ export class WebsocketServer {
         private readonly controller: RequestController,
     ) {}
 
-    public init() {
-        this.server = new WebSocket(
-            `ws://${this.config.host}:${this.config.port}`,
-        );
+    public async init() {
+        this.server = new WebSocketServer({
+            host: this.config.host,
+            port: this.config.port,
+        });
+
         this.logger.info(
             `Server started on ${this.config.host}:${this.config.port}`,
         );
-        this.server.addEventListener("error", this.handleError);
-        this.server.addEventListener("open", this.handleOpen);
-        this.server.addEventListener("message", this.handleMessage);
-        this.server.addEventListener("close", this.handleClose);
-    }
 
-    private handleOpen(_event: WebSocketEventMap["open"]) {
-        this.logger.info(
-            `Connected to ${this.config.host}:${this.config.port}`,
-        );
-    }
+        this.server.on("connection", (socket) => {
+            this.logger.info("New client connected");
 
-    private async handleMessage(event: WebSocketEventMap["message"]) {
-        try {
-            if (!(event.data instanceof Buffer)) {
-                throw new Error("data is not valid");
-            }
+            socket.on("message", async (data: Buffer) => {
+                try {
+                    const result = await this.controller.handler(data);
+                    socket.send(result);
+                } catch (error) {
+                    this.logger.error("WebsocketServer", error);
+                }
+            });
 
-            const result = await this.controller.handler(event.data);
+            socket.on("close", (code) => {
+                this.logger.warn(`Connection closed: code=${code}`);
+            });
 
-            this.server.send(result);
-        } catch (error) {
-            this.logger.error("WebsocketServer", error);
-        }
-    }
-
-    private handleClose(event: WebSocketEventMap["close"]) {
-        this.logger.warn(`Connection closed: code=${event.code}`);
-    }
-
-    private handleError(error: WebSocketEventMap["error"]) {
-        this.logger.error("WebsocketServer", error.error);
+            socket.on("error", (err) => {
+                this.logger.error("WebsocketServer", err);
+            });
+        });
     }
 }

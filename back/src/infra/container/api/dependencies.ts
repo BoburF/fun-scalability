@@ -2,20 +2,27 @@ import { Container } from "inversify";
 import { LoggerImpl } from "../../logger";
 import { ApiDependenciySymbols } from "./symbols";
 import {
+    type RequestController,
     RequestControllerImpl,
     type RequestHandler,
     type RequestHandlers,
 } from "../../request-controller";
 import { WebsocketConfigImpl } from "../../config";
-import { WebsocketServer } from "../../websocket/server";
+import { WebsocketServerImpl } from "../../websocket/server";
+import type { Logger } from "../../../domain/logger";
+import type { WebsocketServerConfig } from "../../websocket/config";
 
 export const ApiContainer = new Container();
 
-ApiContainer.bind(ApiDependenciySymbols.infra.logger).to(LoggerImpl);
+ApiContainer.bind(ApiDependenciySymbols.infra.logger).toDynamicValue(() => {
+    return new LoggerImpl();
+});
 
 // configs
-ApiContainer.bind(ApiDependenciySymbols.infra.config.websocket).to(
-    WebsocketConfigImpl,
+ApiContainer.bind(ApiDependenciySymbols.infra.config.websocket).toDynamicValue(
+    () => {
+        return new WebsocketConfigImpl();
+    },
 );
 
 ApiContainer.bind(ApiDependenciySymbols.infra.controller).toDynamicValue(
@@ -34,4 +41,14 @@ ApiContainer.bind(ApiDependenciySymbols.infra.controller).toDynamicValue(
 );
 
 // app deps for last binding
-ApiContainer.bind(ApiDependenciySymbols.app.server).to(WebsocketServer);
+ApiContainer.bind(ApiDependenciySymbols.app.server).toDynamicValue((ctx) => {
+    const logger = ctx.get<Logger>(ApiDependenciySymbols.infra.logger);
+    const config = ctx.get<WebsocketServerConfig>(
+        ApiDependenciySymbols.infra.config.websocket,
+    );
+    const controller = ctx.get<RequestController>(
+        ApiDependenciySymbols.infra.controller,
+    );
+
+    return new WebsocketServerImpl(logger, config, controller);
+});

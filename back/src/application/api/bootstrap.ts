@@ -1,15 +1,13 @@
 import { ApiContainer } from "../../infra/container/api/dependencies";
 import { ApiDependenciySymbols } from "../../infra/container/api/symbols";
-import type { WebsocketServer } from "../../infra/websocket/server";
+import type { WebsocketServerImpl } from "../../infra/websocket/server";
 
-async function bootstrap() {
+export async function bootstrap() {
     ApiContainer.load();
 
-    const server = ApiContainer.get<WebsocketServer>(
+    const server = ApiContainer.get<WebsocketServerImpl>(
         ApiDependenciySymbols.app.server,
     );
 
-    server.init();
+    await server.init();
 }
-
-bootstrap();

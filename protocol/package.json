@@ -2,9 +2,9 @@
     "name": "protocol",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "build/index.js",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc -p ./tsconfig.json",
         "test": "node build/test/route.js"
     },
     "keywords": [],
