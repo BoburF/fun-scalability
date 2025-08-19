@@ -1,4 +1,4 @@
-import { Logger } from "../../domain/logger";
+import type { Logger } from "../../domain/logger";
 
 export class LoggerImpl implements Logger {
     public info(log: string): void {

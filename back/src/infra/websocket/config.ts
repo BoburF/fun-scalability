@@ -1,4 +1,4 @@
 export interface WebsocketServerConfig {
-    Host: string;
-    Port: number;
+    host: string;
+    port: number;
 }

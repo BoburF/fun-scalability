@@ -11,6 +11,8 @@
     "license": "ISC",
     "dependencies": {
         "@types/node": "^24.2.1",
+        "inversify": "^7.8.1",
+        "protocol": "file:../protocol/src/",
         "typescript": "^5.9.2"
     }
 }
