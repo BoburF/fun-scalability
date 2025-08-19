@@ -10,8 +10,8 @@
     "keywords": [],
     "author": "Bobur Abdullayev<changeitgo3@gmail.com>",
     "license": "ISC",
-    "dependencies": {
-        "@types/node": "^24.2.1",
+    "devDependencies": {
+        "@types/node": "^24.3.0",
         "typescript": "^5.9.2"
     }
 }
