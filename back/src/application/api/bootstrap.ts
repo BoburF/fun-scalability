@@ -10,9 +10,7 @@ export async function bootstrap() {
 
     await db.connect();
 
-    const server = ApiContainer.get<WebsocketServerImpl>(
-        ApiDependenciySymbols.app.server,
-    );
+    const server = ApiContainer.get<WebsocketServerImpl>(ApiDependenciySymbols.app.server);
 
     await server.init();
 }

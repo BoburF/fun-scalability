@@ -1,9 +1,4 @@
-import {
-    buildData,
-    parseData,
-    SchemaBuilder,
-    SchemaDefinition,
-} from "protocol";
+import { buildData, parseData, SchemaBuilder, SchemaDefinition } from "protocol";
 
 export interface RequestController {
     handler(data: Buffer): Promise<Buffer>;
@@ -37,14 +32,9 @@ export class RequestControllerImpl implements RequestController {
             throw new Error(`Handler for apiKey=${header.apiKey} is not found`);
         }
 
-        const params = parseData(
-            data.subarray(this.headerSize),
-            handler.paramSchema,
-        );
-
+        const params = parseData(data.subarray(this.headerSize), handler.paramSchema);
 
         const result = await handler.handle(params);
-
 
         return buildData(result, handler.resultSchema);
     }

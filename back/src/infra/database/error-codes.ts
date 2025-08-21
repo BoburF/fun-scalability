@@ -1,3 +1,3 @@
-export enum DBErrorCodes{
-    InvalidUri = 30
+export enum DBErrorCodes {
+    InvalidUri = 30,
 }

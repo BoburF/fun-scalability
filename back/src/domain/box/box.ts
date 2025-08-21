@@ -18,10 +18,7 @@ export class Box {
             this.data.index = index;
         }
 
-        throw new CustomError(
-            BoxErrorCodes.InvalidIndex,
-            `${index} is out of range`,
-        );
+        throw new CustomError(BoxErrorCodes.InvalidIndex, `${index} is out of range`);
     }
 
     get value() {
@@ -33,10 +30,7 @@ export class Box {
             this.data.value = value;
         }
 
-        throw new CustomError(
-            BoxErrorCodes.InvalidValue,
-            `${value} is invalid`,
-        );
+        throw new CustomError(BoxErrorCodes.InvalidValue, `${value} is invalid`);
     }
 
     public isWithinRange(index: number) {

@@ -8,9 +8,7 @@ export type GetAllBoxesParam = {
 
 export type GetAllBoxesResult = Box[];
 
-export class GetAllBoxesUsecase
-    implements BaseUsecase<GetAllBoxesParam, GetAllBoxesResult>
-{
+export class GetAllBoxesUsecase implements BaseUsecase<GetAllBoxesParam, GetAllBoxesResult> {
     constructor(private readonly boxRepository: BoxRepository) {}
 
     async execute(param: GetAllBoxesParam): Promise<GetAllBoxesResult> {

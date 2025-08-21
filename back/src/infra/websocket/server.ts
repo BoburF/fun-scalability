@@ -51,9 +51,6 @@ export class WebsocketServerImpl {
             };
         }
 
-        throw new CustomError(
-            WebsocketServerErrorCodes.InvalidConfig,
-            `HOST and PORT for wbesocket is invalid`,
-        );
+        throw new CustomError(WebsocketServerErrorCodes.InvalidConfig, `HOST and PORT for wbesocket is invalid`);
     }
 }
