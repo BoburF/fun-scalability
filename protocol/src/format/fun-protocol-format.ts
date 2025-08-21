@@ -14,12 +14,10 @@ export type InferSchema<T extends Record<string, BaseSchemaType<any>>> = {
     [K in keyof T]: InferType<T[K]>;
 };
 
-export type SchemaDefinition = Record<string, BaseSchemaType<any>>
+export type SchemaDefinition = Record<string, BaseSchemaType<any>>;
 
 export class SchemaBuilder {
-    static schemaDefinition<T extends SchemaDefinition>(
-        schema: T,
-    ): T {
+    static schemaDefinition<T extends SchemaDefinition>(schema: T): T {
         return schema;
     }
 
@@ -141,9 +139,7 @@ export class SchemaBuilder {
         } as BaseSchemaType<boolean>;
     }
 
-    static array<T extends SchemaDefinition>(
-        schemaDefinition: T,
-    ) {
+    static array<T extends SchemaDefinition>(schemaDefinition: T) {
         return {
             type: SchemaTypes.array,
             parse: (data, offset) => {
@@ -194,10 +190,10 @@ export class SchemaBuilder {
 }
 
 export function parseData<T extends SchemaDefinition>(
-    data: ArrayBuffer,
+    data: Buffer,
     schema: T,
 ): InferSchema<T> {
-    const view = new DataView(data);
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
     let offset = 0;
     const result: any = {};
 
@@ -215,15 +211,19 @@ export function buildData<T extends SchemaDefinition>(
     schema: T,
 ) {
     const size = preCalcSize(obj, schema);
-    const buffer = new ArrayBuffer(size);
-    const view = new DataView(buffer);
+    const buf = Buffer.alloc(size);
+    const view = new DataView(
+        buf.buffer,
+        buf.byteOffset,
+        buf.byteLength,
+    );
     let offset = 0;
 
     for (const [key, fieldSchema] of Object.entries(schema)) {
         offset = fieldSchema.build(obj[key], view, offset);
     }
 
-    return buffer;
+    return buf;
 }
 
 export function preCalcSize<T extends SchemaDefinition>(

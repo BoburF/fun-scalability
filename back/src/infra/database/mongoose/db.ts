@@ -1,4 +1,4 @@
-import { Connection } from "mongoose";
+import { Connection, connection } from "mongoose";
 import type { DB } from "../db";
 import { CustomError } from "../../../domain/_core/error";
 import { DBErrorCodes } from "../error-codes";
@@ -8,7 +8,7 @@ export class MongooseDB implements DB<Connection> {
     public readonly connection: Connection;
 
     constructor(private readonly logger: Logger) {
-        this.connection = new Connection();
+        this.connection = connection;
     }
 
     async connect(): Promise<void> {

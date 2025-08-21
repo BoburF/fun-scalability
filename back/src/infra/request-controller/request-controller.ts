@@ -29,12 +29,7 @@ export class RequestControllerImpl implements RequestController {
             apiKey: SchemaBuilder.number16(),
         });
 
-        const headerBuffer = data.buffer.slice(
-            0,
-            this.headerSize,
-        ) as ArrayBuffer;
-
-        const header = parseData(headerBuffer, headDataSchema);
+        const header = parseData(data, headDataSchema);
 
         const handler = this.handlers[header.apiKey];
 
@@ -42,15 +37,15 @@ export class RequestControllerImpl implements RequestController {
             throw new Error(`Handler for apiKey=${header.apiKey} is not found`);
         }
 
-        const paramsBuffer = data.buffer.slice(
-            this.headerSize,
-            this.headerSize + data.byteLength,
-        ) as ArrayBuffer;
+        const params = parseData(
+            data.subarray(this.headerSize),
+            handler.paramSchema,
+        );
 
-        const params = parseData(paramsBuffer, handler.paramSchema);
 
-        const result = handler.handle(params);
+        const result = await handler.handle(params);
 
-        return new Buffer(buildData(result, handler.resultSchema));
+
+        return buildData(result, handler.resultSchema);
     }
 }

@@ -1,7 +1,5 @@
-import { Model } from "mongoose";
+import type { Model } from "mongoose";
 import { Box, BoxModel, BoxRepository } from "../../../../domain/box";
-
-export const BoxCollectionName = "boxes";
 
 export class BoxRepositoryImpl implements BoxRepository {
     constructor(private model: Model<BoxModel>) {}
@@ -14,6 +12,12 @@ export class BoxRepositoryImpl implements BoxRepository {
         const box = await this.model.findOne({ index });
 
         return box ? new Box(box) : null;
+    }
+
+    async getAll(skip: number, limit: number): Promise<Box[]> {
+        const boxes = await this.model.find({}, {}, { skip, limit });
+
+        return boxes.map((box) => new Box(box));
     }
 
     async update(box: Box): Promise<Box> {

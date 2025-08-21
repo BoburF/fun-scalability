@@ -1,6 +1,16 @@
 export const ApiDependenciySymbols = {
     app: {
         server: Symbol.for("server"),
+        usecases: {
+            box: {
+                getAll: Symbol.for("box.getAll"),
+            },
+        },
+    },
+    domain: {
+        box: {
+            repository: Symbol.for("box.repository"),
+        },
     },
     infra: {
         logger: Symbol.for("logger"),
@@ -8,15 +18,14 @@ export const ApiDependenciySymbols = {
             websocket: Symbol.for("websocket"),
         },
         requestHandlers: {
-            1: Symbol.for("1"),
+            box: {
+                getAll: Symbol.for("box.getAll.handler"),
+            },
             all: Symbol.for("all"),
         },
         controller: Symbol.for("controller"),
         database: {
             db: Symbol.for("db"),
-            repositories: {
-                box: Symbol.for("box"),
-            },
         },
     },
 };

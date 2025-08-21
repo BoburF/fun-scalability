@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "build": "tsc",
+        "build": "rm -rf ./build && tsc",
         "start:api": "node --env-file=.env ./build/application/api/index.js"
     },
     "keywords": [],
