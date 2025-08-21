@@ -9,8 +9,14 @@ export const ApiDependenciySymbols = {
         },
         requestHandlers: {
             1: Symbol.for("1"),
-            all: Symbol.for("all")
+            all: Symbol.for("all"),
         },
         controller: Symbol.for("controller"),
+        database: {
+            db: Symbol.for("db"),
+            repositories: {
+                box: Symbol.for("box"),
+            },
+        },
     },
 };

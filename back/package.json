@@ -5,13 +5,14 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc",
-        "start:api": "node ./build/application/api/index.js"
+        "start:api": "node --env-file=.env ./build/application/api/index.js"
     },
     "keywords": [],
     "author": "Abdullayev Bobur<changeitgo3@gmail.com>",
     "license": "ISC",
     "dependencies": {
         "inversify": "^7.8.1",
+        "mongoose": "^8.17.2",
         "protocol": "file:../protocol",
         "ws": "^8.18.3"
     },

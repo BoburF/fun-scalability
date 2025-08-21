@@ -1,26 +1,25 @@
 import { WebSocketServer } from "ws";
 import type { Logger } from "../../domain/_core/logger";
-import type { WebsocketServerConfig } from "./config";
 import type { RequestController } from "../request-controller";
+import { CustomError } from "../../domain/_core/error";
+import { WebsocketServerErrorCodes } from "./error-codes";
 
 export class WebsocketServerImpl {
     private server!: WebSocketServer;
 
     constructor(
         private readonly logger: Logger,
-        private readonly config: WebsocketServerConfig,
         private readonly controller: RequestController,
     ) {}
 
     public async init() {
+        const config = this.validateConfig();
         this.server = new WebSocketServer({
-            host: this.config.host,
-            port: this.config.port,
+            host: config.host,
+            port: config.port,
         });
 
-        this.logger.info(
-            `Server started on ${this.config.host}:${this.config.port}`,
-        );
+        this.logger.info(`Server started on ${config.host}:${config.port}`);
 
         this.server.on("connection", (socket) => {
             this.logger.info("New client connected");
@@ -42,5 +41,19 @@ export class WebsocketServerImpl {
                 this.logger.error("WebsocketServer", err);
             });
         });
+    }
+
+    private validateConfig() {
+        if (process.env["HOST"] && process.env["PORT"]) {
+            return {
+                host: process.env["HOST"],
+                port: Number(process.env["PORT"]),
+            };
+        }
+
+        throw new CustomError(
+            WebsocketServerErrorCodes.InvalidConfig,
+            `HOST and PORT for wbesocket is invalid`,
+        );
     }
 }

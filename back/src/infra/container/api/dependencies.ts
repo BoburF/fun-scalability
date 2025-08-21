@@ -7,10 +7,14 @@ import {
     type RequestHandler,
     type RequestHandlers,
 } from "../../request-controller";
-import { WebsocketConfigImpl } from "../../config";
 import { WebsocketServerImpl } from "../../websocket/server";
 import type { Logger } from "../../../domain/_core/logger";
-import type { WebsocketServerConfig } from "../../websocket/config";
+import {
+    BoxCollectionName,
+    BoxRepositoryImpl,
+    BoxSchema,
+    MongooseDB,
+} from "../../database/mongoose";
 
 export const ApiContainer = new Container();
 
@@ -18,12 +22,23 @@ ApiContainer.bind(ApiDependenciySymbols.infra.logger).toDynamicValue(() => {
     return new LoggerImpl();
 });
 
-// configs
-ApiContainer.bind(ApiDependenciySymbols.infra.config.websocket).toDynamicValue(
-    () => {
-        return new WebsocketConfigImpl();
+// databse
+ApiContainer.bind(ApiDependenciySymbols.infra.database.db).toDynamicValue(
+    (ctx) => {
+        const logger = ctx.get<Logger>(ApiDependenciySymbols.infra.logger);
+
+        return new MongooseDB(logger);
     },
 );
+
+ApiContainer.bind(
+    ApiDependenciySymbols.infra.database.repositories.box,
+).toDynamicValue((ctx) => {
+    const db = ctx.get<MongooseDB>(ApiDependenciySymbols.infra.database.db);
+    const model = db.connection.model(BoxCollectionName, BoxSchema);
+
+    return new BoxRepositoryImpl(model);
+});
 
 ApiContainer.bind(ApiDependenciySymbols.infra.controller).toDynamicValue(
     (ctx) => {
@@ -43,12 +58,9 @@ ApiContainer.bind(ApiDependenciySymbols.infra.controller).toDynamicValue(
 // app deps for last binding
 ApiContainer.bind(ApiDependenciySymbols.app.server).toDynamicValue((ctx) => {
     const logger = ctx.get<Logger>(ApiDependenciySymbols.infra.logger);
-    const config = ctx.get<WebsocketServerConfig>(
-        ApiDependenciySymbols.infra.config.websocket,
-    );
     const controller = ctx.get<RequestController>(
         ApiDependenciySymbols.infra.controller,
     );
 
-    return new WebsocketServerImpl(logger, config, controller);
+    return new WebsocketServerImpl(logger, controller);
 });
