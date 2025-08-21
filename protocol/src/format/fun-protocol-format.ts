@@ -98,11 +98,7 @@ export class SchemaBuilder {
                 }
                 const strClearLength = Number(strLength);
 
-                const bytes = new Uint8Array(
-                    data.buffer,
-                    offset,
-                    strClearLength,
-                );
+                const bytes = new Uint8Array(data.buffer, offset, strClearLength);
 
                 const str = new TextDecoder("utf-8").decode(bytes);
 
@@ -115,9 +111,7 @@ export class SchemaBuilder {
                 view.setBigUint64(offset, BigInt(encoded.length), false);
                 offset += 8;
 
-                new Uint8Array(view.buffer, offset, encoded.length).set(
-                    encoded,
-                );
+                new Uint8Array(view.buffer, offset, encoded.length).set(encoded);
 
                 return offset + encoded.length;
             },
@@ -150,9 +144,7 @@ export class SchemaBuilder {
                 for (let i = 0; i < length; i++) {
                     const obj: Record<string, unknown> = {};
 
-                    for (const [key, parser] of Object.entries(
-                        schemaDefinition,
-                    )) {
+                    for (const [key, parser] of Object.entries(schemaDefinition)) {
                         let value;
                         [value, offset] = parser.parse(data, offset);
                         obj[key] = value;
@@ -168,9 +160,7 @@ export class SchemaBuilder {
                 offset += 4;
 
                 for (const obj of values) {
-                    for (const [key, parser] of Object.entries(
-                        schemaDefinition,
-                    )) {
+                    for (const [key, parser] of Object.entries(schemaDefinition)) {
                         offset = parser.build(obj[key], view, offset);
                     }
                 }
@@ -189,10 +179,7 @@ export class SchemaBuilder {
     }
 }
 
-export function parseData<T extends SchemaDefinition>(
-    data: Buffer,
-    schema: T,
-): InferSchema<T> {
+export function parseData<T extends SchemaDefinition>(data: Buffer, schema: T): InferSchema<T> {
     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
     let offset = 0;
     const result: any = {};
@@ -206,17 +193,10 @@ export function parseData<T extends SchemaDefinition>(
     return result;
 }
 
-export function buildData<T extends SchemaDefinition>(
-    obj: InferSchema<T>,
-    schema: T,
-) {
+export function buildData<T extends SchemaDefinition>(obj: InferSchema<T>, schema: T) {
     const size = preCalcSize(obj, schema);
     const buf = Buffer.alloc(size);
-    const view = new DataView(
-        buf.buffer,
-        buf.byteOffset,
-        buf.byteLength,
-    );
+    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
     let offset = 0;
 
     for (const [key, fieldSchema] of Object.entries(schema)) {
@@ -226,10 +206,7 @@ export function buildData<T extends SchemaDefinition>(
     return buf;
 }
 
-export function preCalcSize<T extends SchemaDefinition>(
-    obj: InferSchema<T>,
-    schema: T,
-): number {
+export function preCalcSize<T extends SchemaDefinition>(obj: InferSchema<T>, schema: T): number {
     let totalSize = 0;
 
     for (const [key, fieldSchema] of Object.entries(schema)) {
