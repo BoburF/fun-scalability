@@ -15,4 +15,18 @@ export class BoxRepositoryImpl implements BoxRepository {
 
         return box ? new Box(box) : null;
     }
+
+    async update(box: Box): Promise<Box> {
+        await this.model.updateOne(
+            {
+                index: box.index,
+            },
+            {
+                index: box.index,
+                value: box.value,
+            },
+        );
+
+        return box;
+    }
 }
