@@ -9,7 +9,7 @@ import {
 } from "../../request-controller";
 import { WebsocketConfigImpl } from "../../config";
 import { WebsocketServerImpl } from "../../websocket/server";
-import type { Logger } from "../../../domain/logger";
+import type { Logger } from "../../../domain/_core/logger";
 import type { WebsocketServerConfig } from "../../websocket/config";
 
 export const ApiContainer = new Container();

@@ -1,5 +1,5 @@
 import { WebSocketServer } from "ws";
-import type { Logger } from "../../domain/logger";
+import type { Logger } from "../../domain/_core/logger";
 import type { WebsocketServerConfig } from "./config";
 import type { RequestController } from "../request-controller";
 
