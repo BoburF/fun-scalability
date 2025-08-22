@@ -23,9 +23,9 @@ export class ChangeValueBoxeHandler implements RequestHandler<ChangeValueBoxeHan
     constructor(private readonly ChangeValueBoxeUsecase: ChangeValueBoxeUsecase) {}
 
     public async handle(data: ChangeValueBoxeHandlerParamSchemaType): Promise<ChangeValueBoxeHandlerResultSchemaType> {
-        const boxe = await this.ChangeValueBoxeUsecase.execute(data);
+        const box = await this.ChangeValueBoxeUsecase.execute(data);
 
         // presenter
-        return boxe.toPlain();
+        return box.toPlain();
     }
 }

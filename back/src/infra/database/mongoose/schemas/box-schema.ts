@@ -16,5 +16,7 @@ export const BoxSchema = new Schema<BoxModel>(
     },
     {
         collection: BoxCollectionName,
+        versionKey: false,
+        timestamps: true,
     },
 );

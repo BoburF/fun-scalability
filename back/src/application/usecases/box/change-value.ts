@@ -19,6 +19,6 @@ export class ChangeValueBoxeUsecase implements BaseUsecase<ChangeValueBoxeParam,
             return this.boxRepository.update(box);
         }
 
-        return this.boxRepository.create(new Box(param));
+        return this.boxRepository.create(param);
     }
 }

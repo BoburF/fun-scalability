@@ -1,10 +1,10 @@
 import type { Model } from "mongoose";
-import { Box, BoxModel, BoxRepository } from "../../../../domain/box";
+import { Box, type BoxModel, type BoxRepository } from "../../../../domain/box";
 
 export class BoxRepositoryImpl implements BoxRepository {
     constructor(private model: Model<BoxModel>) {}
 
-    async create(box: Box): Promise<Box> {
+    async create(box: BoxModel): Promise<Box> {
         return new Box(await this.model.create(box));
     }
 
