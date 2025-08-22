@@ -27,8 +27,9 @@ export class GetAllBoxesHandler implements RequestHandler<GetAllBoxesHandlerPara
     public async handle(data: GetAllBoxesHandlerParamSchemaType): Promise<GetAllBoxesHandlerResultSchemaType> {
         const boxes = await this.getAllBoxesUsecase.execute(data);
 
+        // presenter
         return {
-            boxes,
+            boxes: boxes.map((box) => box.toPlain()),
         };
     }
 }

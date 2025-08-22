@@ -40,4 +40,11 @@ export class Box {
     public isValidValue(value: string) {
         return value.length === 1;
     }
+
+    public toPlain() {
+        return {
+            index: this.index,
+            value: this.value,
+        };
+    }
 }
