@@ -16,6 +16,7 @@ export class Box {
     set index(index: number) {
         if (this.isWithinRange(index)) {
             this.data.index = index;
+            return
         }
 
         throw new CustomError(BoxErrorCodes.InvalidIndex, `${index} is out of range`);
@@ -28,6 +29,7 @@ export class Box {
     set value(value: string) {
         if (this.isValidValue(value)) {
             this.data.value = value;
+            return
         }
 
         throw new CustomError(BoxErrorCodes.InvalidValue, `${value} is invalid`);
