@@ -1,5 +1,6 @@
 import { BaseUsecase } from "../../../domain/_core/base-usecase";
-import { Box, type BoxRepository } from "../../../domain/box";
+import { CustomError } from "../../../domain/_core/error";
+import { Box, BoxErrorCodes, type BoxRepository } from "../../../domain/box";
 
 export type ChangeValueBoxeParam = {
     index: number;
@@ -14,11 +15,11 @@ export class ChangeValueBoxeUsecase implements BaseUsecase<ChangeValueBoxeParam,
     async execute(param: ChangeValueBoxeParam): Promise<ChangeValueBoxeResult> {
         const box = await this.boxRepository.getByIndex(param.index);
 
-        if (box) {
-            box.value = param.value;
-            return this.boxRepository.update(box);
+        if (!box) {
+            throw new CustomError(BoxErrorCodes.NotFound, `Box with ${param.index} was not found`);
         }
 
-        return this.boxRepository.create(param);
+        box.value = param.value;
+        return this.boxRepository.update(box);
     }
 }
