@@ -4,6 +4,7 @@ export const ApiDependenciySymbols = {
         usecases: {
             box: {
                 getAll: Symbol.for("box.getAll"),
+                changeValue: Symbol.for("box.changeValue"),
             },
         },
     },
@@ -20,6 +21,7 @@ export const ApiDependenciySymbols = {
         requestHandlers: {
             box: {
                 getAll: Symbol.for("box.getAll.handler"),
+                changeValue: Symbol.for("box.changeValue.handler"),
             },
             all: Symbol.for("all"),
         },

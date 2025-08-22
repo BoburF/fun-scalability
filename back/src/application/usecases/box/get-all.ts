@@ -1,5 +1,5 @@
 import { BaseUsecase } from "../../../domain/_core/base-usecase";
-import { Box, BoxRepository } from "../../../domain/box";
+import type { Box, BoxRepository } from "../../../domain/box";
 
 export type GetAllBoxesParam = {
     skip: number;

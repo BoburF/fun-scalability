@@ -6,8 +6,9 @@ import { WebsocketServerImpl } from "../../websocket/server";
 import type { Logger } from "../../../domain/_core/logger";
 import type { BoxModel, BoxRepository } from "../../../domain/box";
 import { MongooseDB, BoxCollectionName, BoxRepositoryImpl, BoxSchema } from "../../database/mongoose";
-import { GetAllBoxesUsecase } from "../../../application/usecases/box";
+import { ChangeValueBoxeUsecase, GetAllBoxesUsecase } from "../../../application/usecases/box";
 import { GetAllBoxesHandler } from "../../../application/api/handlers";
+import { ChangeValueBoxeHandler } from "../../../application/api/handlers/change-value-box-handler";
 
 export const ApiContainer = new Container();
 
@@ -36,6 +37,12 @@ ApiContainer.bind(ApiDependenciySymbols.app.usecases.box.getAll).toDynamicValue(
     return new GetAllBoxesUsecase(boxRepository);
 });
 
+ApiContainer.bind(ApiDependenciySymbols.app.usecases.box.changeValue).toDynamicValue((ctx) => {
+    const boxRepository = ctx.get<BoxRepository>(ApiDependenciySymbols.domain.box.repository);
+
+    return new ChangeValueBoxeUsecase(boxRepository);
+});
+
 // request handlers
 ApiContainer.bind(ApiDependenciySymbols.infra.requestHandlers.box.getAll).toDynamicValue((ctx) => {
     const getAllBoxesUsecase = ctx.get<GetAllBoxesUsecase>(ApiDependenciySymbols.app.usecases.box.getAll);
@@ -43,6 +50,13 @@ ApiContainer.bind(ApiDependenciySymbols.infra.requestHandlers.box.getAll).toDyna
     return new GetAllBoxesHandler(getAllBoxesUsecase);
 });
 ApiContainer.bind(ApiDependenciySymbols.infra.requestHandlers.all).toService(ApiDependenciySymbols.infra.requestHandlers.box.getAll);
+
+ApiContainer.bind(ApiDependenciySymbols.infra.requestHandlers.box.changeValue).toDynamicValue((ctx) => {
+    const changeValueBoxeUsecase = ctx.get<ChangeValueBoxeUsecase>(ApiDependenciySymbols.app.usecases.box.changeValue);
+
+    return new ChangeValueBoxeHandler(changeValueBoxeUsecase);
+});
+ApiContainer.bind(ApiDependenciySymbols.infra.requestHandlers.all).toService(ApiDependenciySymbols.infra.requestHandlers.box.changeValue);
 
 ApiContainer.bind(ApiDependenciySymbols.infra.controller).toDynamicValue((ctx) => {
     const handlers = ctx.getAll<RequestHandler>(ApiDependenciySymbols.infra.requestHandlers.all);
