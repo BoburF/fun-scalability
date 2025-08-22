@@ -98,7 +98,7 @@ export class SchemaBuilder {
                 }
                 const strClearLength = Number(strLength);
 
-                const bytes = new Uint8Array(data.buffer, offset, strClearLength);
+                const bytes = new Uint8Array(data.buffer, data.byteOffset + offset, strClearLength);
 
                 const str = new TextDecoder("utf-8").decode(bytes);
 
@@ -111,7 +111,7 @@ export class SchemaBuilder {
                 view.setBigUint64(offset, BigInt(encoded.length), false);
                 offset += 8;
 
-                new Uint8Array(view.buffer, offset, encoded.length).set(encoded);
+                new Uint8Array(view.buffer, view.byteOffset + offset, encoded.length).set(encoded);
 
                 return offset + encoded.length;
             },
