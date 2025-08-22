@@ -1,8 +1,12 @@
 import type { Model } from "mongoose";
 import { Box, type BoxModel, type BoxRepository } from "../../../../domain/box";
+import type EventEmitter from "events";
 
 export class BoxRepositoryImpl implements BoxRepository {
-    constructor(private model: Model<BoxModel>) {}
+    constructor(
+        private model: Model<BoxModel>,
+        private eventEmitter: EventEmitter,
+    ) {}
 
     async create(box: BoxModel): Promise<Box> {
         return new Box(await this.model.create(box));
@@ -30,6 +34,10 @@ export class BoxRepositoryImpl implements BoxRepository {
                 value: box.value,
             },
         );
+
+        const events = box.pullAll();
+
+        events.forEach((event) => this.eventEmitter.emit(event.event, event.data));
 
         return box;
     }

@@ -12,6 +12,7 @@
     "license": "ISC",
     "dependencies": {
         "inversify": "^7.8.1",
+        "ioredis": "^5.7.0",
         "mongoose": "^8.17.2",
         "protocol": "file:../protocol",
         "ws": "^8.18.3"

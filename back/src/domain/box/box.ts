@@ -1,3 +1,4 @@
+import { BaseDomainEvent, BoxChangeValueBroadcastEventImpl } from "../_core/events";
 import { CustomError } from "../_core/error";
 import { BoxErrorCodes } from "./error-codes";
 
@@ -6,8 +7,10 @@ export interface BoxModel {
     value: string;
 }
 
-export class Box {
-    constructor(private data: BoxModel) {}
+export class Box extends BaseDomainEvent {
+    constructor(private data: BoxModel) {
+        super();
+    }
 
     get index() {
         return this.data.index;
@@ -16,7 +19,7 @@ export class Box {
     set index(index: number) {
         if (this.isWithinRange(index)) {
             this.data.index = index;
-            return
+            return;
         }
 
         throw new CustomError(BoxErrorCodes.InvalidIndex, `${index} is out of range`);
@@ -29,7 +32,8 @@ export class Box {
     set value(value: string) {
         if (this.isValidValue(value)) {
             this.data.value = value;
-            return
+            this.addEvent(new BoxChangeValueBroadcastEventImpl({ value, index: this.index }));
+            return;
         }
 
         throw new CustomError(BoxErrorCodes.InvalidValue, `${value} is invalid`);

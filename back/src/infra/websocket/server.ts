@@ -43,6 +43,14 @@ export class WebsocketServerImpl {
         });
     }
 
+    public broadcast(data: Buffer) {
+        this.server.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(data);
+            }
+        });
+    }
+
     private validateConfig() {
         if (process.env["HOST"] && process.env["PORT"]) {
             return {
