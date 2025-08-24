@@ -4,8 +4,8 @@ import { ApiKeys } from "./api-keys";
 import type { GetAllBoxesUsecase } from "../../usecases/box";
 
 export const GetAllBoxesHandlerParamSchema = SchemaBuilder.schemaDefinition({
-    skip: SchemaBuilder.number16(),
-    limit: SchemaBuilder.number16(),
+    skip: SchemaBuilder.number32(),
+    limit: SchemaBuilder.number32(),
 });
 export type GetAllBoxesHandlerParamSchemaType = InferSchema<typeof GetAllBoxesHandlerParamSchema>;
 
