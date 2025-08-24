@@ -13,6 +13,7 @@ import { Broker, RedisBroker } from "../../broker";
 import { BoxChangeValuePublisher } from "../../event-publishers";
 import { BoxChangeValueBroadcastEventHandler } from "../../../application/api/event-emit-handlers/box-change-value-broadcast-handler";
 import { BoxChangeValueReceiveEventHandler } from "../../../application/api/event-emit-handlers/box-change-value-receive-handler";
+import { Cache, RedisCache } from "../../cache";
 
 export const ApiContainer = new Container({ defaultScope: "Singleton" });
 
@@ -21,6 +22,13 @@ ApiContainer.bind(ApiDependenciySymbols.infra.logger).toDynamicValue(() => {
 });
 
 ApiContainer.bind(ApiDependenciySymbols.infra.eventEmitter).toConstantValue(new EventEmitter());
+
+//cache
+ApiContainer.bind(ApiDependenciySymbols.infra.cache).toDynamicValue((ctx) => {
+    const logger = ctx.get<Logger>(ApiDependenciySymbols.infra.logger);
+
+    return new RedisCache(logger);
+});
 
 // databse
 ApiContainer.bind(ApiDependenciySymbols.infra.database.db).toDynamicValue((ctx) => {
@@ -33,8 +41,9 @@ ApiContainer.bind(ApiDependenciySymbols.domain.box.repository).toDynamicValue((c
     const db = ctx.get<MongooseDB>(ApiDependenciySymbols.infra.database.db);
     const model = db.connection.model<BoxModel>(BoxCollectionName, BoxSchema);
     const eventEmitter = ctx.get<EventEmitter>(ApiDependenciySymbols.infra.eventEmitter);
+    const cache = ctx.get<Cache>(ApiDependenciySymbols.infra.cache);
 
-    return new BoxRepositoryImpl(model, eventEmitter);
+    return new BoxRepositoryImpl(model, eventEmitter, cache);
 });
 
 // usecases

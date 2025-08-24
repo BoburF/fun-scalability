@@ -1,11 +1,20 @@
 import type { Model } from "mongoose";
 import { Box, type BoxModel, type BoxRepository } from "../../../../domain/box";
 import type EventEmitter from "events";
+import type { Cache } from "../../../cache";
+import { buildData, InferSchema, parseData, SchemaBuilder } from "protocol";
+
+export const BoxProtocolSchema = SchemaBuilder.schemaDefinition({
+    index: SchemaBuilder.number32(),
+    value: SchemaBuilder.string(),
+});
+export type BoxProtocolSchemaType = InferSchema<typeof BoxProtocolSchema>;
 
 export class BoxRepositoryImpl implements BoxRepository {
     constructor(
-        private model: Model<BoxModel>,
-        private eventEmitter: EventEmitter,
+        private readonly model: Model<BoxModel>,
+        private readonly eventEmitter: EventEmitter,
+        private readonly cache: Cache,
     ) {}
 
     async create(box: BoxModel): Promise<Box> {
@@ -13,7 +22,17 @@ export class BoxRepositoryImpl implements BoxRepository {
     }
 
     async getByIndex(index: number): Promise<Box | null> {
+        const data = await this.cache.get(index.toString());
+
+        if (data) {
+            return new Box(parseData(data, BoxProtocolSchema));
+        }
+
         const box = await this.model.findOne({ index });
+
+        if (box) {
+            await this.cache.set(box.index.toString(), buildData(box, BoxProtocolSchema));
+        }
 
         return box ? new Box(box) : null;
     }
@@ -34,6 +53,8 @@ export class BoxRepositoryImpl implements BoxRepository {
                 value: box.value,
             },
         );
+
+        await this.cache.set(box.index.toString(), buildData(box.toPlain(), BoxProtocolSchema));
 
         const events = box.pullAll();
 

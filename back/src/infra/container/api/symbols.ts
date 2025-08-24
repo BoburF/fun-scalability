@@ -4,7 +4,7 @@ export const ApiDependenciySymbols = {
         eventHandler: {
             boxChangeValueBroadcast: Symbol.for("app.eventHandler.boxChangeValueBroadcast"),
             boxChangeValueReceive: Symbol.for("app.eventHandler.boxChangeValueReceive"),
-            all: Symbol.for("app.eventHandler.all")
+            all: Symbol.for("app.eventHandler.all"),
         },
         usecases: {
             box: {
@@ -41,5 +41,6 @@ export const ApiDependenciySymbols = {
                 boxChangeValue: Symbol.for("events.publisher.boxChangeValue"),
             },
         },
+        cache: Symbol.for("cache"),
     },
 };

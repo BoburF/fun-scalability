@@ -3,6 +3,7 @@ import { ApiDependenciySymbols } from "../../infra/container/api/symbols";
 import type { DB } from "../../infra/database";
 import type { WebsocketServerImpl } from "../../infra/websocket/server";
 import type { Broker } from "../../infra/broker";
+import type { Cache } from "../../infra/cache";
 
 export async function bootstrap() {
     ApiContainer.load();
@@ -10,6 +11,10 @@ export async function bootstrap() {
     const db = ApiContainer.get<DB>(ApiDependenciySymbols.infra.database.db);
 
     await db.connect();
+
+    const cache = ApiContainer.get<Cache>(ApiDependenciySymbols.infra.cache);
+
+    await cache.open();
 
     const server = ApiContainer.get<WebsocketServerImpl>(ApiDependenciySymbols.app.server);
 
