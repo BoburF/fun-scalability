@@ -34,6 +34,7 @@
         <canvas id="canvas"></canvas>
         <div id="overlay">Scroll to zoom, drag to move</div>
 
+        <script src="./protocol.js"></script>
         <script>
             // --- Canvas setup ---
             const canvas = document.getElementById("canvas");
@@ -184,15 +185,34 @@
                 draw();
             });
 
+            const changeValueSchema = SchemaBuilder.schemaDefinition({
+                apiKey: SchemaBuilder.number16(),
+                index: SchemaBuilder.number32(),
+                value: SchemaBuilder.string(),
+            });
+
+            const paginationSchema = SchemaBuilder.schemaDefinition({
+                apiKey: SchemaBuilder.number16(),
+                skip: SchemaBuilder.number16(),
+                limit: SchemaBuilder.number16(),
+            });
+
             // --- WebSocket client ---
-            const socket = new WebSocket("ws://localhost:8080"); // change to your backend
+            const socket = new WebSocket("ws://localhost:7777"); // change to your backend
+
             socket.addEventListener("open", () => {
                 console.log("Connected to server");
                 // Example: request initial chunk
-                socket.send(
-                    JSON.stringify({ action: "get", skip: 0, limit: 100 }),
-                );
+
+                const pagination = {
+                    apiKey: 1,
+                    skip: 0,
+                    limit: 1000,
+                };
+
+                socket.send(buildData(pagination, paginationSchema));
             });
+
             socket.addEventListener("message", (event) => {
                 // You’ll implement parsing of your custom protocol here
                 console.log("Received:", event.data);
