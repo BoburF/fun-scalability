@@ -1,4 +1,4 @@
-import { buildData, InferSchema, parseData, SchemaBuilder } from "./fun-protocol-format";
+import { buildData, type InferSchema, parseData, SchemaBuilder } from "./fun-protocol-format";
 
 const getInfoSchema = SchemaBuilder.schemaDefinition({
     apiKey: SchemaBuilder.number16(),

@@ -1,4 +1,4 @@
-import { BaseSchemaType } from "./schema-type";
+import type { BaseSchemaType } from "./schema-type";
 import { SchemaTypes } from "./schema-enums";
 
 export type InferType<S> =

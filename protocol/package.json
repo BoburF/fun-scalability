@@ -5,6 +5,7 @@
     "main": "build/index.js",
     "scripts": {
         "build": "tsc -p ./tsconfig.json",
+        "build:front": "tsc -p ./tsconfig.front.json",
         "test": "node build/test/route.js"
     },
     "keywords": [],
