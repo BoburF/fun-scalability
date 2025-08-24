@@ -3,17 +3,17 @@
         "rootDir": "./src",
         "outDir": "../front/build-front",
 
-        "target": "ESNext",
-        "lib": ["DOM", "ES2020"],
+        "target": "esnext",
+        "lib": ["DOM"],
 
-        "module": "ESNext",
-        "moduleResolution": "Bundler",
+        "module": "esnext",
+        "moduleResolution": "bundler",
 
         "verbatimModuleSyntax": true,
 
-        "sourceMap": true,
-        "declaration": true,
-        "declarationMap": true,
+        "sourceMap": false,
+        "declaration": false,
+        "declarationMap": false,
 
         "noUncheckedIndexedAccess": true,
         "exactOptionalPropertyTypes": true,

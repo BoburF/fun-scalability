@@ -1,26 +1,8 @@
-import type { BaseSchemaType } from "./schema-type";
 import { SchemaTypes } from "./schema-enums.js";
-
-export type InferType<S> =
-    S extends BaseSchemaType<infer U>
-        ? U extends (infer Item)[]
-            ? Item extends Record<string, BaseSchemaType<any>>
-                ? { [K in keyof Item]: InferType<Item[K]> }[]
-                : Item[]
-            : U
-        : never;
-
-export type InferSchema<T extends Record<string, BaseSchemaType<any>>> = {
-    [K in keyof T]: InferType<T[K]>;
-};
-
-export type SchemaDefinition = Record<string, BaseSchemaType<any>>;
-
 export class SchemaBuilder {
-    static schemaDefinition<T extends SchemaDefinition>(schema: T): T {
+    static schemaDefinition(schema) {
         return schema;
     }
-
     static number8() {
         return {
             type: SchemaTypes.number8,
@@ -29,13 +11,11 @@ export class SchemaBuilder {
             },
             build: (val, data, offset) => {
                 data.setUint8(offset, val);
-
                 return offset + 1;
             },
             size: (_) => 1,
-        } as BaseSchemaType<number>;
+        };
     }
-
     static number16() {
         return {
             type: SchemaTypes.number16,
@@ -44,13 +24,11 @@ export class SchemaBuilder {
             },
             build: (val, data, offset) => {
                 data.setUint16(offset, val, false);
-
                 return offset + 2;
             },
             size: (_) => 2,
-        } as BaseSchemaType<number>;
+        };
     }
-
     static number32() {
         return {
             type: SchemaTypes.number32,
@@ -59,34 +37,28 @@ export class SchemaBuilder {
             },
             build: (val, data, offset) => {
                 data.setUint32(offset, val, false);
-
                 return offset + 4;
             },
             size: (_) => 4,
-        } as BaseSchemaType<number>;
+        };
     }
-
     static number64() {
         return {
             type: SchemaTypes.number64,
             parse: (data, offset) => {
                 const num = data.getBigUint64(offset, false);
-
                 if (num > BigInt(Number.MAX_SAFE_INTEGER)) {
                     throw new Error("String too large for safe JS number");
                 }
-
                 return [Number(num), offset + 8];
             },
             build: (val, data, offset) => {
                 data.setBigUint64(offset, BigInt(val), false);
-
                 return offset + 8;
             },
             size: (_) => 8,
-        } as BaseSchemaType<number>;
+        };
     }
-
     static string() {
         return {
             type: SchemaTypes.string,
@@ -97,28 +69,21 @@ export class SchemaBuilder {
                     throw new Error("String too large for safe JS number");
                 }
                 const strClearLength = Number(strLength);
-
                 const bytes = new Uint8Array(data.buffer, data.byteOffset + offset, strClearLength);
-
                 const str = new TextDecoder("utf-8").decode(bytes);
-
                 return [str, offset + strClearLength];
             },
             build: (val, view, offset) => {
                 const encoder = new TextEncoder();
                 const encoded = encoder.encode(val);
-
                 view.setBigUint64(offset, BigInt(encoded.length), false);
                 offset += 8;
-
                 new Uint8Array(view.buffer, view.byteOffset + offset, encoded.length).set(encoded);
-
                 return offset + encoded.length;
             },
             size: (value) => 8 + new TextEncoder().encode(value).length,
-        } as BaseSchemaType<string>;
+        };
     }
-
     static boolean() {
         return {
             type: SchemaTypes.boolean,
@@ -127,38 +92,31 @@ export class SchemaBuilder {
             },
             build: (val, data, offset) => {
                 data.setUint8(offset, val ? 1 : 0);
-
                 return offset + 1;
             },
-        } as BaseSchemaType<boolean>;
+        };
     }
-
-    static array<T extends SchemaDefinition>(schemaDefinition: T) {
+    static array(schemaDefinition) {
         return {
             type: SchemaTypes.array,
             parse: (data, offset) => {
                 const length = data.getUint32(offset, false);
                 offset += 4;
-
-                const result: InferSchema<T>[] = new Array(length);
+                const result = new Array(length);
                 for (let i = 0; i < length; i++) {
-                    const obj: Record<string, unknown> = {};
-
+                    const obj = {};
                     for (const [key, parser] of Object.entries(schemaDefinition)) {
                         let value;
                         [value, offset] = parser.parse(data, offset);
                         obj[key] = value;
                     }
-
-                    result[i] = obj as InferSchema<T>;
+                    result[i] = obj;
                 }
-
                 return [result, offset];
             },
-            build: (values: any[], view, offset) => {
+            build: (values, view, offset) => {
                 view.setUint32(offset, values.length, false);
                 offset += 4;
-
                 for (const obj of values) {
                     for (const [key, parser] of Object.entries(schemaDefinition)) {
                         offset = parser.build(obj[key], view, offset);
@@ -170,56 +128,49 @@ export class SchemaBuilder {
                 let total = 4;
                 for (const v of values) {
                     for (const key of Object.keys(v)) {
-                        total += schemaDefinition[key]!.size(v);
+                        total += schemaDefinition[key].size(v);
                     }
                 }
                 return total;
             },
-        } as BaseSchemaType<Array<InferSchema<T>>>;
+        };
     }
 }
-
-export function parseData<T extends SchemaDefinition>(data: Buffer, schema: T): InferSchema<T> {
+export function parseData(data, schema) {
     try {
         const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
         let offset = 0;
-        const result: any = {};
-
+        const result = {};
         for (const key of Object.keys(schema)) {
-            const [value, newOffset] = schema[key]!.parse(view, offset);
+            const [value, newOffset] = schema[key].parse(view, offset);
             result[key] = value;
             offset = newOffset;
         }
-
         return result;
-    } catch (err) {
+    }
+    catch (err) {
         throw new Error(`invalid data ${err}`);
     }
 }
-
-export function buildData<T extends SchemaDefinition>(obj: InferSchema<T>, schema: T) {
+export function buildData(obj, schema) {
     try {
         const size = preCalcSize(obj, schema);
         const buf = Buffer.alloc(size);
         const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
         let offset = 0;
-
         for (const [key, fieldSchema] of Object.entries(schema)) {
             offset = fieldSchema.build(obj[key], view, offset);
         }
-
         return buf;
-    } catch (err) {
+    }
+    catch (err) {
         throw new Error(`invalid data ${err}`);
     }
 }
-
-export function preCalcSize<T extends SchemaDefinition>(obj: InferSchema<T>, schema: T): number {
+export function preCalcSize(obj, schema) {
     let totalSize = 0;
-
     for (const [key, fieldSchema] of Object.entries(schema)) {
         totalSize += fieldSchema.size(obj[key]);
     }
-
     return totalSize;
 }

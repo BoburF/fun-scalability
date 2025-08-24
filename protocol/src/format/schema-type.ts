@@ -1,4 +1,4 @@
-import { SchemaTypes } from "./schema-enums";
+import type { SchemaTypes } from "./schema-enums.js";
 
 export type BaseSchemaType<T> = {
     type: SchemaTypes;

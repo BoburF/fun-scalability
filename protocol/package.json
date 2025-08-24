@@ -4,8 +4,8 @@
     "description": "",
     "main": "build/index.js",
     "scripts": {
-        "build": "tsc -p ./tsconfig.json",
-        "build:front": "tsc -p ./tsconfig.front.json",
+        "build": "rm -rf ./build && tsc -p ./tsconfig.json",
+        "build:front": "rm -rf ../front/build-front && tsc -p ./tsconfig.front.json",
         "test": "node build/test/route.js"
     },
     "keywords": [],
