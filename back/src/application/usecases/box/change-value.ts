@@ -19,6 +19,10 @@ export class ChangeValueBoxeUsecase implements BaseUsecase<ChangeValueBoxeParam,
             throw new CustomError(BoxErrorCodes.NotFound, `Box with ${param.index} was not found`);
         }
 
+        if (box.value === param.value) {
+            return box;
+        }
+
         box.value = param.value;
         return this.boxRepository.update(box);
     }
