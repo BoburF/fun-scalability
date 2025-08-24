@@ -27,7 +27,7 @@ export class WebsocketServerImpl {
             socket.on("message", async (data: Buffer) => {
                 try {
                     const result = await this.controller.handler(data);
-                    socket.send(result);
+                    socket.send(result, { binary: true });
                 } catch (error) {
                     this.logger.error("WebsocketServer", error);
                 }
@@ -43,12 +43,23 @@ export class WebsocketServerImpl {
         });
     }
 
+    // Should be tested. I don't want to test
     public broadcast(data: Buffer) {
-        this.server.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(data);
+        const clients = Array.from(this.server.clients);
+        let i = 0;
+
+        const loop = () => {
+            const end = Math.min(i + 500, clients.length); // 500 per tick
+            for (; i < end; i++) {
+                const client = clients[i]!;
+                if (client.readyState === client.OPEN) {
+                    client.send(data, { binary: true });
+                }
             }
-        });
+            if (i < clients.length) setImmediate(loop);
+        };
+
+        loop();
     }
 
     private validateConfig() {
