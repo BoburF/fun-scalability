@@ -180,30 +180,38 @@ export class SchemaBuilder {
 }
 
 export function parseData<T extends SchemaDefinition>(data: Buffer, schema: T): InferSchema<T> {
-    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
-    let offset = 0;
-    const result: any = {};
+    try {
+        const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+        let offset = 0;
+        const result: any = {};
 
-    for (const key of Object.keys(schema)) {
-        const [value, newOffset] = schema[key]!.parse(view, offset);
-        result[key] = value;
-        offset = newOffset;
+        for (const key of Object.keys(schema)) {
+            const [value, newOffset] = schema[key]!.parse(view, offset);
+            result[key] = value;
+            offset = newOffset;
+        }
+
+        return result;
+    } catch (err) {
+        throw new Error(`invalid data`, { cause: err });
     }
-
-    return result;
 }
 
 export function buildData<T extends SchemaDefinition>(obj: InferSchema<T>, schema: T) {
-    const size = preCalcSize(obj, schema);
-    const buf = Buffer.alloc(size);
-    const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
-    let offset = 0;
+    try {
+        const size = preCalcSize(obj, schema);
+        const buf = Buffer.alloc(size);
+        const view = new DataView(buf.buffer, buf.byteOffset, buf.byteLength);
+        let offset = 0;
 
-    for (const [key, fieldSchema] of Object.entries(schema)) {
-        offset = fieldSchema.build(obj[key], view, offset);
+        for (const [key, fieldSchema] of Object.entries(schema)) {
+            offset = fieldSchema.build(obj[key], view, offset);
+        }
+
+        return buf;
+    } catch (err) {
+        throw new Error(`invalid data`, { cause: err });
     }
-
-    return buf;
 }
 
 export function preCalcSize<T extends SchemaDefinition>(obj: InferSchema<T>, schema: T): number {
